@@ -3,16 +3,32 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  // Utilisation d'un Enum avec les rôles demandés
-  role: { 
-    type: String, 
-    required: true, 
-    uppercase: true, 
-    enum: ['ADMIN', 'BUYERS', 'ADMINSHOP'],
-    default: 'BUYERS'
+
+  // Single Role (ARR unchecked in Moon Modeler)
+  role: {
+    type: String,
+    required: true,
+    uppercase: true,
+    enum: ['ADMIN', 'BUYER', 'SHOP_ADMIN'],
+    default: 'BUYER'
   },
-  permission: [{ type: String }],
-  status: { type: String, required: true, uppercase: true, default: 'ACTIVE' },
+
+  // Multiple Permissions (ARR checked)
+  permission: [{
+    type: String,
+    uppercase: true,
+    enum: ['CASHIER', 'MASCOT', 'SELLER', 'RECEPTIONIST']
+  }],
+
+  // Account Status
+  status: {
+    type: String,
+    required: true,
+    uppercase: true,
+    enum: ['ACTIVE', 'INACTIVE', 'BANNED', 'PENDING'],
+    default: 'ACTIVE'
+  },
+
   shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop' },
   created_at: { type: Date, default: Date.now }
 });
