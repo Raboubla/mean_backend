@@ -19,26 +19,17 @@ exports.createProduct = async (req, res) => {
 // Obtenir tous les produits (avec pagination)
 exports.getAllProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    // const page = parseInt(req.query.page) || 1;
+    // const limit = parseInt(req.query.limit) || 10;
+    // const skip = (page - 1) * limit;
 
     const products = await Product.find()
       .populate('shop', 'name category')
-      .skip(skip)
-      .limit(limit)
-      .sort({ _id: -1 });
 
-    const total = await Product.countDocuments();
+    // const total = await Product.countDocuments();
 
     res.json({
-      products,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        totalProducts: total,
-        limit
-      }
+      products
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
