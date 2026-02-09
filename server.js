@@ -53,6 +53,7 @@ app.use('/api/shops', require('./routes/shop.routes'));
 app.use('/api/products', require('./routes/product.routes'));
 app.use('/api/sales', require('./routes/sales.routes'));
 app.use('/api/communications', require('./routes/communication.routes'));
+app.use('/api/reviews', require('./routes/review.routes'));
 app.use('/api/auth', require('./routes/auth.routes.js'));
 
 app.listen(PORT, () => console.log(`Serveur démarré sur le port 
