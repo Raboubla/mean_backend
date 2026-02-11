@@ -168,22 +168,34 @@ exports.getTodaySales = async (req, res) => {
 // Get sales statistics
 exports.getSalesStatistics = async (req, res) => {
   try {
-    const totalSales = await Sales.countDocuments();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    // Calculate total revenue
-    const revenueData = await Sales.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalRevenue: {
-            $sum: { $toDouble: '$total_price' }
-          },
-          totalQuantity: { $sum: '$quantity' },
-          averageOrderValue: {
-            $avg: { $toDouble: '$total_price' }
+    // Execute all queries in parallel for better performance
+    const [
+      totalSales,
+      todaySalesCount,
+      monthSalesCount,
+      revenueData
+    ] = await Promise.all([
+      Sales.countDocuments(),
+      Sales.countDocuments({ sold_at: { $gte: today } }),
+      Sales.countDocuments({ sold_at: { $gte: firstDayOfMonth } }),
+      Sales.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalRevenue: {
+              $sum: { $toDouble: '$total_price' }
+            },
+            totalQuantity: { $sum: '$quantity' },
+            averageOrderValue: {
+              $avg: { $toDouble: '$total_price' }
+            }
           }
         }
-      }
+      ])
     ]);
 
     const revenue = revenueData.length > 0 ? revenueData[0] : {
@@ -191,19 +203,6 @@ exports.getSalesStatistics = async (req, res) => {
       totalQuantity: 0,
       averageOrderValue: 0
     };
-
-    // Today's sales
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todaySalesCount = await Sales.countDocuments({
-      sold_at: { $gte: today }
-    });
-
-    // This month's sales
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const monthSalesCount = await Sales.countDocuments({
-      sold_at: { $gte: firstDayOfMonth }
-    });
 
     res.json({
       statistics: {

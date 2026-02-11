@@ -226,22 +226,28 @@ exports.updatePassword = async (req, res) => {
   }
 };
 
+
 // Get user statistics
 exports.getUserStatistics = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const activeUsers = await User.countDocuments({ status: 'ACTIVE' });
-    const inactiveUsers = await User.countDocuments({ status: 'INACTIVE' });
-
-    // Count by role
-    const adminCount = await User.countDocuments({ role: 'ADMIN' });
-    const buyersCount = await User.countDocuments({ role: 'BUYERS' });
-    const adminShopCount = await User.countDocuments({ role: 'ADMINSHOP' });
-
-    // Users with shops
-    const usersWithShop = await User.countDocuments({
-      shop: { $exists: true, $ne: null }
-    });
+    // Execute all queries in parallel for better performance
+    const [
+      totalUsers,
+      activeUsers,
+      inactiveUsers,
+      adminCount,
+      buyersCount,
+      adminShopCount,
+      usersWithShop
+    ] = await Promise.all([
+      User.countDocuments(),
+      User.countDocuments({ status: 'ACTIVE' }),
+      User.countDocuments({ status: 'INACTIVE' }),
+      User.countDocuments({ role: 'ADMIN' }),
+      User.countDocuments({ role: 'BUYERS' }),
+      User.countDocuments({ role: 'ADMINSHOP' }),
+      User.countDocuments({ shop: { $exists: true, $ne: null } })
+    ]);
 
     res.json({
       statistics: {
@@ -260,6 +266,7 @@ exports.getUserStatistics = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Search users by email
 exports.searchUsersByEmail = async (req, res) => {

@@ -229,26 +229,31 @@ exports.getCommunicationStatistics = async (req, res) => {
     try {
         const now = new Date();
 
-        const total = await Communication.countDocuments();
-        const active = await Communication.countDocuments({
-            start_date: { $lte: now },
-            end_date: { $gte: now }
-        });
-        const upcoming = await Communication.countDocuments({
-            start_date: { $gt: now }
-        });
-        const expired = await Communication.countDocuments({
-            end_date: { $lt: now }
-        });
-
-        // Count by type
-        const announcements = await Communication.countDocuments({ type: 'ANNOUNCEMENT' });
-        const events = await Communication.countDocuments({ type: 'EVENT' });
-
-        // Count by target
-        const targetAll = await Communication.countDocuments({ target: 'ALL' });
-        const targetBuyers = await Communication.countDocuments({ target: 'BUYERS' });
-        const targetShopAdmins = await Communication.countDocuments({ target: 'SHOP_ADMINS' });
+        // Execute all queries in parallel for better performance
+        const [
+            total,
+            active,
+            upcoming,
+            expired,
+            announcements,
+            events,
+            targetAll,
+            targetBuyers,
+            targetShopAdmins
+        ] = await Promise.all([
+            Communication.countDocuments(),
+            Communication.countDocuments({
+                start_date: { $lte: now },
+                end_date: { $gte: now }
+            }),
+            Communication.countDocuments({ start_date: { $gt: now } }),
+            Communication.countDocuments({ end_date: { $lt: now } }),
+            Communication.countDocuments({ type: 'ANNOUNCEMENT' }),
+            Communication.countDocuments({ type: 'EVENT' }),
+            Communication.countDocuments({ target: 'ALL' }),
+            Communication.countDocuments({ target: 'BUYERS' }),
+            Communication.countDocuments({ target: 'SHOP_ADMINS' })
+        ]);
 
         res.json({
             statistics: {
