@@ -223,28 +223,39 @@ exports.updateReviewStatus = async (req, res) => {
 // Get review statistics
 exports.getReviewStatistics = async (req, res) => {
     try {
-        const total = await Review.countDocuments();
-        const pending = await Review.countDocuments({ status: 'PENDING' });
-        const approved = await Review.countDocuments({ status: 'APPROVED' });
-        const rejected = await Review.countDocuments({ status: 'REJECTED' });
-        const spam = await Review.countDocuments({ status: 'SPAM' });
-
-        // Count by rating
-        const rating1 = await Review.countDocuments({ rating: 1 });
-        const rating2 = await Review.countDocuments({ rating: 2 });
-        const rating3 = await Review.countDocuments({ rating: 3 });
-        const rating4 = await Review.countDocuments({ rating: 4 });
-        const rating5 = await Review.countDocuments({ rating: 5 });
-
-        // Calculate average rating
-        const avgRatingData = await Review.aggregate([
-            { $match: { status: 'APPROVED' } },
-            {
-                $group: {
-                    _id: null,
-                    averageRating: { $avg: '$rating' }
+        // Execute all queries in parallel for better performance
+        const [
+            total,
+            pending,
+            approved,
+            rejected,
+            spam,
+            rating1,
+            rating2,
+            rating3,
+            rating4,
+            rating5,
+            avgRatingData
+        ] = await Promise.all([
+            Review.countDocuments(),
+            Review.countDocuments({ status: 'PENDING' }),
+            Review.countDocuments({ status: 'APPROVED' }),
+            Review.countDocuments({ status: 'REJECTED' }),
+            Review.countDocuments({ status: 'SPAM' }),
+            Review.countDocuments({ rating: 1 }),
+            Review.countDocuments({ rating: 2 }),
+            Review.countDocuments({ rating: 3 }),
+            Review.countDocuments({ rating: 4 }),
+            Review.countDocuments({ rating: 5 }),
+            Review.aggregate([
+                { $match: { status: 'APPROVED' } },
+                {
+                    $group: {
+                        _id: null,
+                        averageRating: { $avg: '$rating' }
+                    }
                 }
-            }
+            ])
         ]);
 
         const averageRating = avgRatingData.length > 0
@@ -278,54 +289,53 @@ exports.getReviewStatsByShop = async (req, res) => {
     try {
         const { shopId } = req.params;
 
-        const total = await Review.countDocuments({ shop: shopId });
-        const approved = await Review.countDocuments({
-            shop: shopId,
-            status: 'APPROVED'
-        });
-        const pending = await Review.countDocuments({
-            shop: shopId,
-            status: 'PENDING'
-        });
-
-        // Calculate average rating for this shop (approved reviews only)
-        const avgRatingData = await Review.aggregate([
-            {
-                $match: {
-                    shop: require('mongoose').Types.ObjectId(shopId),
-                    status: 'APPROVED'
+        // Execute all queries in parallel for better performance
+        const [
+            total,
+            approved,
+            pending,
+            avgRatingData,
+            ratingDistribution
+        ] = await Promise.all([
+            Review.countDocuments({ shop: shopId }),
+            Review.countDocuments({ shop: shopId, status: 'APPROVED' }),
+            Review.countDocuments({ shop: shopId, status: 'PENDING' }),
+            Review.aggregate([
+                {
+                    $match: {
+                        shop: require('mongoose').Types.ObjectId(shopId),
+                        status: 'APPROVED'
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        averageRating: { $avg: '$rating' },
+                        totalApproved: { $sum: 1 }
+                    }
                 }
-            },
-            {
-                $group: {
-                    _id: null,
-                    averageRating: { $avg: '$rating' },
-                    totalApproved: { $sum: 1 }
-                }
-            }
+            ]),
+            Review.aggregate([
+                {
+                    $match: {
+                        shop: require('mongoose').Types.ObjectId(shopId),
+                        status: 'APPROVED'
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$rating',
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ])
         ]);
 
         const stats = avgRatingData.length > 0 ? avgRatingData[0] : {
             averageRating: 0,
             totalApproved: 0
         };
-
-        // Count by rating for this shop
-        const ratingDistribution = await Review.aggregate([
-            {
-                $match: {
-                    shop: require('mongoose').Types.ObjectId(shopId),
-                    status: 'APPROVED'
-                }
-            },
-            {
-                $group: {
-                    _id: '$rating',
-                    count: { $sum: 1 }
-                }
-            },
-            { $sort: { _id: 1 } }
-        ]);
 
         res.json({
             shopId,

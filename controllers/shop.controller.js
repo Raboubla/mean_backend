@@ -225,45 +225,49 @@ exports.searchShopsByName = async (req, res) => {
 // Get shop statistics
 exports.getShopStatistics = async (req, res) => {
   try {
-    const totalShops = await Shop.countDocuments();
-
-    // Count by status
-    const openShops = await Shop.countDocuments({ status: 'OPEN' });
-    const closedShops = await Shop.countDocuments({ status: 'CLOSED' });
-    const underRenovation = await Shop.countDocuments({ status: 'UNDER_RENOVATION' });
-    const comingSoon = await Shop.countDocuments({ status: 'COMING_SOON' });
-
-    // Count by category
-    const categoryStats = await Shop.aggregate([
-      { $unwind: '$category' },
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 }
+    // Execute all queries in parallel for better performance
+    const [
+      totalShops,
+      openShops,
+      closedShops,
+      underRenovation,
+      comingSoon,
+      categoryStats,
+      floorStats,
+      viewsData
+    ] = await Promise.all([
+      Shop.countDocuments(),
+      Shop.countDocuments({ status: 'OPEN' }),
+      Shop.countDocuments({ status: 'CLOSED' }),
+      Shop.countDocuments({ status: 'UNDER_RENOVATION' }),
+      Shop.countDocuments({ status: 'COMING_SOON' }),
+      Shop.aggregate([
+        { $unwind: '$category' },
+        {
+          $group: {
+            _id: '$category',
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { count: -1 } }
+      ]),
+      Shop.aggregate([
+        {
+          $group: {
+            _id: '$floor',
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]),
+      Shop.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalViews: { $sum: '$view_count' }
+          }
         }
-      },
-      { $sort: { count: -1 } }
-    ]);
-
-    // Count by floor
-    const floorStats = await Shop.aggregate([
-      {
-        $group: {
-          _id: '$floor',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { _id: 1 } }
-    ]);
-
-    // Total views
-    const viewsData = await Shop.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalViews: { $sum: '$view_count' }
-        }
-      }
+      ])
     ]);
 
     const totalViews = viewsData.length > 0 ? viewsData[0].totalViews : 0;
