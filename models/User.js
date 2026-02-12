@@ -10,14 +10,14 @@ const userSchema = new mongoose.Schema({
     required: true,
     uppercase: true,
     enum: ['ADMIN', 'BUYER', 'SHOP_ADMIN'],
-    default: 'BUYER'
+    default: 'SHOP_ADMIN'
   },
 
   // Multiple Permissions (ARR checked)
   permission: [{
     type: String,
     uppercase: true,
-    enum: ['CASHIER', 'MASCOT', 'SELLER', 'RECEPTIONIST']
+    enum: ['CASHIER', 'MASCOT', 'SELLER', 'RECEPTIONIST', 'ADMIN']
   }],
 
   // Account Status
