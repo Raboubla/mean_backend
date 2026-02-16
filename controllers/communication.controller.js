@@ -1,11 +1,29 @@
 const Communication = require('../models/Communication');
+const upload = require('../middlewares/image.middleware');
+const path = require('path');
 
 // ==================== BASIC CRUD ====================
 
 // Create a new communication
 exports.createCommunication = async (req, res) => {
     try {
-        const communication = new Communication(req.body);
+
+        const commData = req.body;
+
+        // Conversion en objets Date pour une comparaison fiable
+        const startDate = new Date(commData.start_date);
+        const endDate = new Date(commData.end_date);
+
+        if (endDate < startDate) {
+            // Note: 400 (Bad Request) est plus approprié que 404 ici
+            return res.status(400).json({ message: 'End date must be after start date' });
+        }
+
+        // Si une image a été uploadée, on enregistre son chemin
+        if (req.file) {
+            commData.image_url = `/uploads/communications/${req.file.filename}`;
+        }
+        const communication = new Communication(commData);
         await communication.save();
 
         res.status(201).json({
@@ -52,9 +70,26 @@ exports.getCommunicationById = async (req, res) => {
 // Update communication
 exports.updateCommunication = async (req, res) => {
     try {
+        const commData = req.body;
+
+        // Si une nouvelle image a été uploadée, on enregistre son chemin
+        if (req.file) {
+            commData.image_url = `/uploads/communications/${req.file.filename}`;
+
+            // Optionnel : Supprimer l'ancienne image si elle existe
+            const oldComm = await Communication.findById(req.params.id);
+            if (oldComm && oldComm.image_url) {
+                const fs = require('fs');
+                const oldPath = path.join(__dirname, '..', oldComm.image_url);
+                if (fs.existsSync(oldPath)) {
+                    fs.unlinkSync(oldPath);
+                }
+            }
+        }
+
         const communication = await Communication.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            commData,
             { new: true, runValidators: true }
         ).populate('shop', 'name category');
 
