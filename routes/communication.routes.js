@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const communicationCtrl = require('../controllers/communication.controller');
 const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
-
+const upload = require('../middlewares/image.middleware');
 // ==================== BASIC CRUD ====================
 
 /**
@@ -63,7 +63,7 @@ const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
  *       403:
  *         description: Access denied
  */
-router.post('/', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), communicationCtrl.createCommunication);
+router.post('/', upload.single('image'), verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), communicationCtrl.createCommunication);
 
 /**
  * @swagger
@@ -150,7 +150,7 @@ router.get('/:id', verifyToken, communicationCtrl.getCommunicationById);
  *       403:
  *         description: Access denied
  */
-router.put('/:id', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), communicationCtrl.updateCommunication);
+router.put('/:id', upload.single('image'), verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), communicationCtrl.updateCommunication);
 
 /**
  * @swagger

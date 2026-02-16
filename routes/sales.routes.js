@@ -20,11 +20,16 @@ const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
  *           schema:
  *             type: object
  *             required:
+ *               - product
  *               - quantity
  *               - unit_price
  *               - total_price
  *               - shop
  *             properties:
+ *               product:
+ *                 type: string
+ *                 description: Product ID
+ *                 example: "65f1a2b3c4d5e6f7g8h9i0j1"
  *               quantity:
  *                 type: number
  *                 example: 5
@@ -36,6 +41,7 @@ const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
  *                 example: 499.95
  *               shop:
  *                 type: string
+ *                 description: Shop ID
  *                 example: "65f1a2b3c4d5e6f7g8h9i0j1"
  *     responses:
  *       201:
