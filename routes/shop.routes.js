@@ -351,4 +351,25 @@ router.get('/analytics/most-viewed', shopCtrl.getMostViewedShops);
  */
 router.get('/filter/open-now', shopCtrl.getShopsOpenNow);
 
+
+/**
+ * @swagger
+ * /api/shops/my:
+ *   get:
+ *     summary: Get the shop of the logged-in SHOP_ADMIN
+ *     tags: [Shops]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: The shop of the logged-in user (null if none exists)
+ *       401:
+ *         description: Unauthorized (user not logged in)
+ *       403:
+ *         description: Access denied (user is not SHOP_ADMIN)
+ * 
+ */
+router.get('/my', verifyToken, checkRole(['SHOP_ADMIN']), shopCtrl.getMyShop);
+
+
 module.exports = router;
