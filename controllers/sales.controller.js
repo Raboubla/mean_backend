@@ -22,6 +22,7 @@ exports.getAllSales = async (req, res) => {
   try {
     const sales = await Sales.find()
       .populate('shop', 'name category floor')
+      .populate('product', 'name price category')
       .sort({ sold_at: -1 });
 
     res.json({
@@ -37,7 +38,8 @@ exports.getAllSales = async (req, res) => {
 exports.getSaleById = async (req, res) => {
   try {
     const sale = await Sales.findById(req.params.id)
-      .populate('shop', 'name category floor');
+      .populate('shop', 'name category floor')
+      .populate('product', 'name price category');
 
     if (!sale) {
       return res.status(404).json({ message: 'Sale not found' });
@@ -56,7 +58,9 @@ exports.updateSale = async (req, res) => {
       req.params.id,
       req.body,
       { new: true, runValidators: true }
-    ).populate('shop', 'name category');
+    )
+      .populate('shop', 'name category')
+      .populate('product', 'name price category');
 
     if (!sale) {
       return res.status(404).json({ message: 'Sale not found' });
@@ -95,6 +99,7 @@ exports.getSalesByShop = async (req, res) => {
 
     const sales = await Sales.find({ shop: shopId })
       .populate('shop', 'name category floor')
+      .populate('product', 'name price category')
       .sort({ sold_at: -1 });
 
     res.json({
@@ -125,6 +130,7 @@ exports.getSalesByDateRange = async (req, res) => {
       }
     })
       .populate('shop', 'name category')
+      .populate('product', 'name price category')
       .sort({ sold_at: -1 });
 
     res.json({
@@ -153,6 +159,7 @@ exports.getTodaySales = async (req, res) => {
       }
     })
       .populate('shop', 'name category')
+      .populate('product', 'name price category')
       .sort({ sold_at: -1 });
 
     res.json({

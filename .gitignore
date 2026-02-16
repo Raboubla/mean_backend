@@ -47,3 +47,6 @@ coverage/
 # Debug
 .pnp.*
 .yarn/
+
+# Uploaded files
+uploads/
