@@ -392,3 +392,18 @@ exports.getMyShop = async (req, res) => {
   }
 };
 
+// set view count when some body clic on the shop
+exports.setViewCountShop = async (req, res) => {
+  try {
+    const shop = await Shop.findById(req.params.id);
+    if (!shop) {
+      return res.status(404).json({ message: 'Shop not found' });
+    }
+    shop.view_count += 1;
+    await shop.save();
+    res.json({ message: 'View count updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
