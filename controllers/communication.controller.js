@@ -1,13 +1,20 @@
 const Communication = require('../models/Communication');
-const upload = require('../middlewares/image.middleware');
 const path = require('path');
+const fs = require('fs');
+
+// Helper : supprime le fichier uploadé par multer si la requête est rejetée
+const deleteUploadedFile = (file) => {
+    if (file) {
+        const filePath = path.join(__dirname, '..', 'uploads', 'communications', file.filename);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+};
 
 // ==================== BASIC CRUD ====================
 
 // Create a new communication
 exports.createCommunication = async (req, res) => {
     try {
-
         const commData = req.body;
 
         // Conversion en objets Date pour une comparaison fiable
@@ -15,7 +22,8 @@ exports.createCommunication = async (req, res) => {
         const endDate = new Date(commData.end_date);
 
         if (endDate < startDate) {
-            // Note: 400 (Bad Request) est plus approprié que 404 ici
+            // Supprimer l'image uploadée car la requête est invalide
+            deleteUploadedFile(req.file);
             return res.status(400).json({ message: 'End date must be after start date' });
         }
 
@@ -31,6 +39,7 @@ exports.createCommunication = async (req, res) => {
             communication
         });
     } catch (err) {
+        deleteUploadedFile(req.file);
         res.status(400).json({ message: err.message });
     }
 };
@@ -72,18 +81,25 @@ exports.updateCommunication = async (req, res) => {
     try {
         const commData = req.body;
 
+        // Validation des dates si fournies
+        if (commData.start_date && commData.end_date) {
+            const startDate = new Date(commData.start_date);
+            const endDate = new Date(commData.end_date);
+            if (endDate < startDate) {
+                deleteUploadedFile(req.file);
+                return res.status(400).json({ message: 'End date must be after start date' });
+            }
+        }
+
         // Si une nouvelle image a été uploadée, on enregistre son chemin
         if (req.file) {
             commData.image_url = `/uploads/communications/${req.file.filename}`;
 
-            // Optionnel : Supprimer l'ancienne image si elle existe
+            // Supprimer l'ancienne image si elle existe
             const oldComm = await Communication.findById(req.params.id);
             if (oldComm && oldComm.image_url) {
-                const fs = require('fs');
                 const oldPath = path.join(__dirname, '..', oldComm.image_url);
-                if (fs.existsSync(oldPath)) {
-                    fs.unlinkSync(oldPath);
-                }
+                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
             }
         }
 
@@ -94,6 +110,7 @@ exports.updateCommunication = async (req, res) => {
         ).populate('shop', 'name category');
 
         if (!communication) {
+            deleteUploadedFile(req.file);
             return res.status(404).json({ message: 'Communication not found' });
         }
 
@@ -102,6 +119,7 @@ exports.updateCommunication = async (req, res) => {
             communication
         });
     } catch (err) {
+        deleteUploadedFile(req.file);
         res.status(400).json({ message: err.message });
     }
 };

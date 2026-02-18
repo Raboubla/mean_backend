@@ -1,11 +1,19 @@
 const Product = require('../models/Product');
+const path = require('path');
 
 // ==================== CRUD DE BASE ====================
 
 // Créer un produit
 exports.createProduct = async (req, res) => {
   try {
-    const product = new Product(req.body);
+    const productData = req.body;
+
+    // Si une image a été uploadée, on enregistre son chemin
+    if (req.file) {
+      productData.image_url = `/uploads/products/${req.file.filename}`;
+    }
+
+    const product = new Product(productData);
     await product.save();
     res.status(201).json({
       message: 'Produit créé avec succès',
@@ -55,9 +63,26 @@ exports.getProductById = async (req, res) => {
 // Mettre à jour un produit
 exports.updateProduct = async (req, res) => {
   try {
+    const productData = req.body;
+
+    // Si une nouvelle image a été uploadée
+    if (req.file) {
+      productData.image_url = `/uploads/products/${req.file.filename}`;
+
+      // Supprimer l'ancienne image si elle existe
+      const oldProduct = await Product.findById(req.params.id);
+      if (oldProduct && oldProduct.image_url) {
+        const fs = require('fs');
+        const oldPath = path.join(__dirname, '..', oldProduct.image_url);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    }
+
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      productData,
       { new: true, runValidators: true }
     );
 

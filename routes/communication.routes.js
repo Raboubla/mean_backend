@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const communicationCtrl = require('../controllers/communication.controller');
 const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
-const upload = require('../middlewares/image.middleware');
+const createUpload = require('../middlewares/image.middleware');
+const upload = createUpload('communications');
 // ==================== BASIC CRUD ====================
 
 /**
