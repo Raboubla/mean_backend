@@ -1,4 +1,5 @@
 const Shop = require('../models/Shop');
+const User = require('../models/User');
 const path = require('path');
 const fs = require('fs');
 
@@ -25,6 +26,10 @@ exports.createShop = async (req, res) => {
     const newShop = new Shop(shopData);
     const savedShop = await newShop.save();
 
+    // Assign the shop to the user
+    const userId = req.user._id;
+    await User.findByIdAndUpdate(userId, { shop: savedShop._id });
+
     res.status(201).json({
       message: 'Shop created successfully',
       shop: savedShop
@@ -34,6 +39,7 @@ exports.createShop = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 // Get all shops
 exports.getAllShops = async (req, res) => {
@@ -369,3 +375,20 @@ exports.getShopsOpenNow = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Get the shop of the logged-in shop admin
+exports.getMyShop = async (req, res) => {
+  try {
+    // req.user should be set by verifyToken middleware
+    const userId = req.user._id;
+
+    // Populate the shop field
+    const user = await User.findById(userId).populate('shop');
+
+    // Return the shop or null if no shop assigned
+    res.json(user.shop || null);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
