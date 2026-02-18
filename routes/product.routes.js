@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const productCtrl = require('../controllers/product.controller');
 const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
+const createUpload = require('../middlewares/image.middleware');
+const upload = createUpload('products');
 
 // ==================== BASIC CRUD ====================
 
@@ -67,7 +69,7 @@ const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
  *       403:
  *         description: Access denied (insufficient role)
  */
-router.post('/', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), productCtrl.createProduct);
+router.post('/', upload.single('image'), verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), productCtrl.createProduct);
 
 /**
  * @swagger
@@ -163,7 +165,7 @@ router.get('/:id', verifyToken, productCtrl.getProductById);
  *       403:
  *         description: Access denied
  */
-router.put('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), productCtrl.updateProduct);
+router.put('/:id', upload.single('image'), verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), productCtrl.updateProduct);
 
 /**
  * @swagger

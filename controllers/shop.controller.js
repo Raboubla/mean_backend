@@ -1,11 +1,28 @@
 const Shop = require('../models/Shop');
+const path = require('path');
+const fs = require('fs');
+
+// Helper : supprime le fichier uploadé si la requête est rejetée
+const deleteUploadedFile = (file) => {
+  if (file) {
+    const filePath = path.join(__dirname, '..', 'uploads', 'shops', file.filename);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  }
+};
 
 // ==================== BASIC CRUD ====================
 
 // Create a new shop
 exports.createShop = async (req, res) => {
   try {
-    const newShop = new Shop(req.body);
+    const shopData = req.body;
+
+    // Si une image a été uploadée, on enregistre son chemin
+    if (req.file) {
+      shopData.banner_url = `/uploads/shops/${req.file.filename}`;
+    }
+
+    const newShop = new Shop(shopData);
     const savedShop = await newShop.save();
 
     res.status(201).json({
@@ -13,6 +30,7 @@ exports.createShop = async (req, res) => {
       shop: savedShop
     });
   } catch (err) {
+    deleteUploadedFile(req.file);
     res.status(400).json({ message: err.message });
   }
 };
@@ -53,13 +71,28 @@ exports.getShopById = async (req, res) => {
 // Update shop
 exports.updateShop = async (req, res) => {
   try {
+    const shopData = req.body;
+
+    // Si une nouvelle image a été uploadée
+    if (req.file) {
+      shopData.banner_url = `/uploads/shops/${req.file.filename}`;
+
+      // Supprimer l'ancienne image si elle existe
+      const oldShop = await Shop.findById(req.params.id);
+      if (oldShop && oldShop.banner_url) {
+        const oldPath = path.join(__dirname, '..', oldShop.banner_url);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+    }
+
     const shop = await Shop.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      shopData,
       { new: true, runValidators: true }
     );
 
     if (!shop) {
+      deleteUploadedFile(req.file);
       return res.status(404).json({ message: 'Shop not found' });
     }
 
@@ -68,6 +101,7 @@ exports.updateShop = async (req, res) => {
       shop
     });
   } catch (err) {
+    deleteUploadedFile(req.file);
     res.status(400).json({ message: err.message });
   }
 };
