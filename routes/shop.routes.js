@@ -373,5 +373,20 @@ router.get('/filter/open-now', shopCtrl.getShopsOpenNow);
  */
 router.get('/my', verifyToken, checkRole(['SHOP_ADMIN']), shopCtrl.getMyShop);
 
+/**
+ * @swagger
+ * /api/:id/view :
+ *  post :
+ *      summary: Post the view count of the shop when somebody clic on the shop
+ *      tags: [Shops]
+ *      Security:
+ *         - don't have
+ *      Response: 
+ *          200:
+ *              description: The view count of the shop is incremented
+ *          404:
+ *              description: Shop not found
+ */
+router.post('/:id/view', shopCtrl.setViewCountShop);
 
 module.exports = router;
