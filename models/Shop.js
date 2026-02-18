@@ -34,7 +34,9 @@ const shopSchema = new mongoose.Schema({
     },
     open: { type: String, required: true }, // Format "09:00"
     close: { type: String, required: true } // Format "19:00"
-  }]
+  }],
+
+  banner_url: { type: String }
 });
 
 module.exports = mongoose.model('Shop', shopSchema);

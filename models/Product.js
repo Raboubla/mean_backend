@@ -26,6 +26,7 @@ const productSchema = new mongoose.Schema({
   },
 
   is_active: { type: Boolean, default: true },
+  image_url: { type: String },
 
   // Relation avec le Shop
   shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
@@ -34,7 +35,9 @@ const productSchema = new mongoose.Schema({
     discount_percent: { type: Number },
     promo_price: { type: mongoose.Types.Decimal128 },
     end_date: { type: Date }
-  }
+  },
+
+
 });
 
 module.exports = mongoose.model('Product', productSchema);

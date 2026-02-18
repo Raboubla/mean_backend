@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const shopCtrl = require('../controllers/shop.controller');
 const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
+const createUpload = require('../middlewares/image.middleware');
+const upload = createUpload('shops');
 
 // ==================== BASIC CRUD ====================
 
@@ -65,7 +67,7 @@ const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
  *       403:
  *         description: Access denied (ADMIN role required)
  */
-router.post('/', verifyToken, checkRole(['ADMIN']), shopCtrl.createShop);
+router.post('/', upload.single('banner'), verifyToken, checkRole(['ADMIN']), shopCtrl.createShop);
 
 /**
  * @swagger
@@ -147,7 +149,7 @@ router.get('/:id', shopCtrl.getShopById);
  *       403:
  *         description: Access denied
  */
-router.put('/:id', verifyToken, checkRole(['ADMIN']), shopCtrl.updateShop);
+router.put('/:id', upload.single('banner'), verifyToken, checkRole(['ADMIN']), shopCtrl.updateShop);
 
 /**
  * @swagger
