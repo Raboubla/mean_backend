@@ -213,7 +213,7 @@ router.delete('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), productCtr
  *       200:
  *         description: List of shop products
  */
-router.get('/shop/:shopId', verifyToken, productCtrl.getProductsByShop);
+router.get('/shop/:shopId', productCtrl.getProductsByShop);
 
 /**
  * @swagger

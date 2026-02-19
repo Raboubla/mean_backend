@@ -59,6 +59,24 @@ const upload = createUpload('shops');
  *                     close:
  *                       type: string
  *                       example: "18:00"
+ *               contact:
+ *                 type: object
+ *                 properties:
+ *                   phone:
+ *                     type: string
+ *                     example: "+213 555 123456"
+ *                   email:
+ *                     type: string
+ *                     example: "techstore@mail.com"
+ *                   social_media:
+ *                     type: object
+ *                     properties:
+ *                       facebook:
+ *                         type: string
+ *                         example: "https://facebook.com/techstore"
+ *                       instagram:
+ *                         type: string
+ *                         example: "https://instagram.com/techstore"
  *     responses:
  *       201:
  *         description: Shop created successfully
@@ -141,6 +159,22 @@ router.get('/:id', shopCtrl.getShopById);
  *                 type: array
  *                 items:
  *                   type: object
+ *               contact:
+ *                 type: object
+ *                 properties:
+ *                   phone:
+ *                     type: string
+ *                     example: "+213 555 123456"
+ *                   email:
+ *                     type: string
+ *                     example: "techstore@mail.com"
+ *                   social_media:
+ *                     type: object
+ *                     properties:
+ *                       facebook:
+ *                         type: string
+ *                       instagram:
+ *                         type: string
  *     responses:
  *       200:
  *         description: Shop updated successfully
