@@ -36,7 +36,16 @@ const shopSchema = new mongoose.Schema({
     close: { type: String, required: true } // Format "19:00"
   }],
 
-  banner_url: { type: String }
+  banner_url: { type: String },
+
+  contact: {
+    phone: { type: String },
+    email: { type: String, lowercase: true, trim: true },
+    social_media: {
+      facebook: { type: String },
+      instagram: { type: String }
+    }
+  }
 });
 
 module.exports = mongoose.model('Shop', shopSchema);
