@@ -8,6 +8,11 @@ exports.createProduct = async (req, res) => {
   try {
     const productData = req.body;
 
+    // Parse complex fields if they are JSON strings (when sent via FormData)
+    if (typeof productData.promotion === 'string') {
+      try { productData.promotion = JSON.parse(productData.promotion); } catch (e) { }
+    }
+
     // Si une image a été uploadée, on enregistre son chemin
     if (req.file) {
       productData.image_url = `/uploads/products/${req.file.filename}`;
@@ -20,6 +25,11 @@ exports.createProduct = async (req, res) => {
       product
     });
   } catch (err) {
+    if (req.file) {
+      const fs = require('fs');
+      const filePath = path.join(__dirname, '..', 'uploads', 'products', req.file.filename);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
     res.status(400).json({ message: err.message });
   }
 };
@@ -65,6 +75,11 @@ exports.updateProduct = async (req, res) => {
   try {
     const productData = req.body;
 
+    // Parse complex fields if they are JSON strings
+    if (typeof productData.promotion === 'string') {
+      try { productData.promotion = JSON.parse(productData.promotion); } catch (e) { }
+    }
+
     // Si une nouvelle image a été uploadée
     if (req.file) {
       productData.image_url = `/uploads/products/${req.file.filename}`;
@@ -87,6 +102,11 @@ exports.updateProduct = async (req, res) => {
     );
 
     if (!product) {
+      if (req.file) {
+        const fs = require('fs');
+        const filePath = path.join(__dirname, '..', 'uploads', 'products', req.file.filename);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }
       return res.status(404).json({ message: 'Produit non trouvé' });
     }
 
@@ -95,6 +115,11 @@ exports.updateProduct = async (req, res) => {
       product
     });
   } catch (err) {
+    if (req.file) {
+      const fs = require('fs');
+      const filePath = path.join(__dirname, '..', 'uploads', 'products', req.file.filename);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
     res.status(400).json({ message: err.message });
   }
 };
