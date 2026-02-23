@@ -18,6 +18,17 @@ exports.createShop = async (req, res) => {
   try {
     const shopData = req.body;
 
+    // Parse complex fields if they are JSON strings (when sent via FormData)
+    if (typeof shopData.category === 'string') {
+      try { shopData.category = JSON.parse(shopData.category); } catch (e) { }
+    }
+    if (typeof shopData.opening_hours === 'string') {
+      try { shopData.opening_hours = JSON.parse(shopData.opening_hours); } catch (e) { }
+    }
+    if (typeof shopData.contact === 'string') {
+      try { shopData.contact = JSON.parse(shopData.contact); } catch (e) { }
+    }
+
     // Si une image a été uploadée, on enregistre son chemin
     if (req.file) {
       shopData.banner_url = `/uploads/shops/${req.file.filename}`;
@@ -78,6 +89,17 @@ exports.getShopById = async (req, res) => {
 exports.updateShop = async (req, res) => {
   try {
     const shopData = req.body;
+
+    // Parse complex fields if they are JSON strings
+    if (typeof shopData.category === 'string') {
+      try { shopData.category = JSON.parse(shopData.category); } catch (e) { }
+    }
+    if (typeof shopData.opening_hours === 'string') {
+      try { shopData.opening_hours = JSON.parse(shopData.opening_hours); } catch (e) { }
+    }
+    if (typeof shopData.contact === 'string') {
+      try { shopData.contact = JSON.parse(shopData.contact); } catch (e) { }
+    }
 
     // Si une nouvelle image a été uploadée
     if (req.file) {
