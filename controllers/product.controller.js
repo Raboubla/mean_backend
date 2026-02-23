@@ -34,19 +34,56 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// Obtenir tous les produits (avec pagination)
+// Obtenir tous les produits (simple - admin)
 exports.getAllProducts = async (req, res) => {
   try {
-    // const page = parseInt(req.query.page) || 1;
-    // const limit = parseInt(req.query.limit) || 10;
-    // const skip = (page - 1) * limit;
-
     const products = await Product.find()
-      .populate('shop', 'name category')
-
-    // const total = await Product.countDocuments();
+      .populate('shop', 'name category');
 
     res.json({
+      count: products.length,
+      products
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Recherche client : pagination + query + catégorie (pour la page Search Products)
+exports.getClientProducts = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const { query, category } = req.query;
+
+    const filter = {};
+
+    if (query) {
+      filter.$or = [
+        { name: { $regex: query, $options: 'i' } },
+        { category: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } }
+      ];
+    }
+
+    if (category) {
+      filter.category = { $regex: `^${category}$`, $options: 'i' };
+    }
+
+    const total = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
+      .populate('shop', 'name category')
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    res.json({
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit),
+      hasMore: page * limit < total,
       count: products.length,
       products
     });
@@ -213,6 +250,50 @@ exports.getPromotionalProducts = async (req, res) => {
       ],
       is_active: true
     }).populate('shop', 'name category');
+
+    res.json({
+      count: products.length,
+      products
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Promotions client : search + catégorie (pour la page Promotions client)
+exports.getClientPromotions = async (req, res) => {
+  try {
+    const now = new Date();
+    const { query, category } = req.query;
+
+    // Base promo filter
+    const filter = {
+      'promotion.discount_percent': { $exists: true, $gt: 0 },
+      $or: [
+        { 'promotion.end_date': { $gte: now } },
+        { 'promotion.end_date': { $exists: false } }
+      ],
+      is_active: true
+    };
+
+    if (query) {
+      filter.$and = [
+        {
+          $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { description: { $regex: query, $options: 'i' } }
+          ]
+        }
+      ];
+    }
+
+    if (category) {
+      filter.category = { $regex: `^${category}$`, $options: 'i' };
+    }
+
+    const products = await Product.find(filter)
+      .populate('shop', 'name category')
+      .sort({ 'promotion.discount_percent': -1 }); // highest discount first
 
     res.json({
       count: products.length,

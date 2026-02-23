@@ -56,6 +56,7 @@ app.use('/api/sales', require('./routes/sales.routes'));
 app.use('/api/communications', require('./routes/communication.routes'));
 app.use('/api/reviews', require('./routes/review.routes'));
 app.use('/api/auth', require('./routes/auth.routes.js'));
+app.use('/api/dashboard', require('./routes/dashboard.routes'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(PORT, () => console.log(`Serveur démarré sur le port 

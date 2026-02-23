@@ -48,5 +48,4 @@ coverage/
 .pnp.*
 .yarn/
 
-# Uploaded files
-uploads/
+
