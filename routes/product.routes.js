@@ -98,6 +98,9 @@ router.post('/', upload.single('image'), verifyToken, checkRole(['ADMINSHOP', 'A
  *       401:
  *         description: Not authenticated
  */
+router.get('/client', productCtrl.getClientProducts);
+router.get('/client/promotions', productCtrl.getClientPromotions);
+
 router.get('/', verifyToken, productCtrl.getAllProducts);
 
 /**

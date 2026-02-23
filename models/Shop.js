@@ -46,6 +46,6 @@ const shopSchema = new mongoose.Schema({
       instagram: { type: String }
     }
   }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Shop', shopSchema);

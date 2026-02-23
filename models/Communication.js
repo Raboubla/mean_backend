@@ -28,6 +28,6 @@ const communicationSchema = new mongoose.Schema({
 
   // Relation optionnelle (si la comm vient d'un shop spécifique)
   shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop' }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Communication', communicationSchema);

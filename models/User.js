@@ -31,6 +31,6 @@ const userSchema = new mongoose.Schema({
 
   shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop' },
   created_at: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
