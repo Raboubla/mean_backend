@@ -6,7 +6,13 @@ const authService = require('../services/auth.service');
 // Create a new user
 exports.createUser = async (req, res) => {
   try {
-    const newUser = new User(req.body);
+    const { shopId, ...rest } = req.body;
+
+    // Map shopId → shop (the schema field name)
+    const userData = { ...rest };
+    if (shopId) userData.shop = shopId;
+
+    const newUser = new User(userData);
     const savedUser = await newUser.save();
 
     // Remove password from response
@@ -21,6 +27,7 @@ exports.createUser = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 // Get all users  (supports ?query=&status=&role= filters)
 exports.getAllUsers = async (req, res) => {
@@ -74,7 +81,11 @@ exports.getUserById = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     // Prevent password update through this endpoint
-    const { password, ...updateData } = req.body;
+    const { password, shopId, ...rest } = req.body;
+
+    // Map shopId → shop (the schema field name)
+    const updateData = { ...rest };
+    if (shopId !== undefined) updateData.shop = shopId || null;
 
     const user = await User.findByIdAndUpdate(
       req.params.id,
@@ -94,6 +105,7 @@ exports.updateUser = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 // Delete user
 exports.deleteUser = async (req, res) => {
