@@ -17,22 +17,71 @@ exports.createSale = async (req, res) => {
   }
 };
 
-// Get all sales
+// Get all sales — supports ?query (product name regex), ?shopId
 exports.getAllSales = async (req, res) => {
   try {
-    const sales = await Sales.find()
-      .populate('shop', 'name category floor')
-      .populate('product', 'name price category')
-      .sort({ sold_at: -1 });
+    const mongoose = require('mongoose');
+    const { query, shopId } = req.query;
+    const filter = {};
 
-    res.json({
-      count: sales.length,
-      sales
-    });
+    if (shopId) {
+      // $match needs ObjectId, not raw string
+      try { filter.shop = new mongoose.Types.ObjectId(shopId); }
+      catch (_) { filter.shop = shopId; }
+    }
+
+    let sales;
+
+    if (query) {
+      // Aggregation needed to filter on populated product.name
+      const pipeline = [
+        { $match: filter },
+        {
+          $lookup: {
+            from: 'products',
+            localField: 'product',
+            foreignField: '_id',
+            as: 'productInfo'
+          }
+        },
+        { $unwind: { path: '$productInfo', preserveNullAndEmptyArrays: true } },
+        {
+          $match: {
+            'productInfo.name': { $regex: query, $options: 'i' }
+          }
+        },
+        {
+          $lookup: {
+            from: 'shops',
+            localField: 'shop',
+            foreignField: '_id',
+            as: 'shopInfo'
+          }
+        },
+        { $unwind: { path: '$shopInfo', preserveNullAndEmptyArrays: true } },
+        { $sort: { sold_at: -1 } }
+      ];
+
+      const raw = await Sales.aggregate(pipeline);
+      sales = raw.map(s => ({
+        ...s,
+        product: s.productInfo || s.product,
+        shop: s.shopInfo || s.shop
+      }));
+    } else {
+      sales = await Sales.find(filter)
+        .populate('shop', 'name category floor')
+        .populate('product', 'name price category')
+        .sort({ sold_at: -1 });
+    }
+
+    res.json({ count: sales.length, sales });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
+
 
 // Get sale by ID
 exports.getSaleById = async (req, res) => {
