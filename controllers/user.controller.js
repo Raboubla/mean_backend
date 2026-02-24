@@ -22,12 +22,26 @@ exports.createUser = async (req, res) => {
   }
 };
 
-// Get all users
+// Get all users  (supports ?query=&status=&role= filters)
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find()
+    const { query, status, role } = req.query;
+    const filter = {};
+
+    if (query) {
+      filter.email = { $regex: query, $options: 'i' };
+    }
+    if (status) {
+      filter.status = status.toUpperCase();
+    }
+    if (role) {
+      filter.role = role.toUpperCase();
+    }
+
+    const users = await User.find(filter)
       .populate('shop', 'name category floor')
-      .select('-password'); // Exclude password field
+      .select('-password')
+      .sort({ createdAt: -1 });
 
     res.json({
       count: users.length,
@@ -37,6 +51,7 @@ exports.getAllUsers = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Get user by ID
 exports.getUserById = async (req, res) => {

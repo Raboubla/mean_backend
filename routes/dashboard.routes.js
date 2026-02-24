@@ -74,4 +74,76 @@ router.get('/stats', verifyToken, checkRole(['ADMIN']), async (req, res) => {
     }
 });
 
+
+// ──────────────────────────────────────────────────────────
+// Top shops by product count
+// ──────────────────────────────────────────────────────────
+router.get('/top-shops-by-products', verifyToken, checkRole(['ADMIN']), async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+        const results = await Product.aggregate([
+            { $group: { _id: '$shop', productCount: { $sum: 1 } } },
+            { $sort: { productCount: -1 } },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'shops',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'shop'
+                }
+            },
+            { $unwind: { path: '$shop', preserveNullAndEmptyArrays: true } },
+            {
+                $project: {
+                    _id: 0,
+                    shopId: '$_id',
+                    shopName: { $ifNull: ['$shop.name', 'Unknown'] },
+                    productCount: 1
+                }
+            }
+        ]);
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ──────────────────────────────────────────────────────────
+// Top products by total sales quantity
+// ──────────────────────────────────────────────────────────
+router.get('/top-products-by-sales', verifyToken, checkRole(['ADMIN']), async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+        const results = await Sales.aggregate([
+            { $group: { _id: '$product', totalQty: { $sum: '$quantity' }, totalRevenue: { $sum: { $toDouble: '$total_price' } } } },
+            { $sort: { totalQty: -1 } },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            },
+            { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } },
+            {
+                $project: {
+                    _id: 0,
+                    productId: '$_id',
+                    productName: { $ifNull: ['$product.name', 'Unknown'] },
+                    category: { $ifNull: ['$product.category', '—'] },
+                    totalQty: 1,
+                    totalRevenue: 1
+                }
+            }
+        ]);
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;
+
