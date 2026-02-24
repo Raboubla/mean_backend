@@ -17,10 +17,24 @@ exports.createReview = async (req, res) => {
     }
 };
 
-// Get all reviews
+// Get all reviews — supports ?query (customer_name/comment regex), ?status
 exports.getAllReviews = async (req, res) => {
     try {
-        const reviews = await Review.find()
+        const { query, status } = req.query;
+        const filter = {};
+
+        if (query) {
+            filter.$or = [
+                { customer_name: { $regex: query, $options: 'i' } },
+                { comment: { $regex: query, $options: 'i' } }
+            ];
+        }
+
+        if (status) {
+            filter.status = status.toUpperCase();
+        }
+
+        const reviews = await Review.find(filter)
             .populate('shop', 'name category')
             .sort({ created_at: -1 });
 
@@ -32,6 +46,7 @@ exports.getAllReviews = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
 
 // Get review by ID
 exports.getReviewById = async (req, res) => {
