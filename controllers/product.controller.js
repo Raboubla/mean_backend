@@ -34,11 +34,26 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// Obtenir tous les produits (simple - admin)
+// Obtenir tous les produits (admin) — supports ?query (name/desc regex), ?category
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find()
-      .populate('shop', 'name category');
+    const { query, category } = req.query;
+    const filter = {};
+
+    if (query) {
+      filter.$or = [
+        { name: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } }
+      ];
+    }
+
+    if (category) {
+      filter.category = { $regex: `^${category}$`, $options: 'i' };
+    }
+
+    const products = await Product.find(filter)
+      .populate('shop', 'name category')
+      .sort({ createdAt: -1 });
 
     res.json({
       count: products.length,
@@ -49,15 +64,21 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+
 // Recherche client : pagination + query + catégorie (pour la page Search Products)
 exports.getClientProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const { query, category } = req.query;
+    const { query, category, shopId } = req.query;
 
     const filter = {};
+
+    // Scope to a specific shop
+    if (shopId) {
+      filter.shop = shopId;
+    }
 
     if (query) {
       filter.$or = [
