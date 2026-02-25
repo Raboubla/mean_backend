@@ -1,6 +1,6 @@
 const Product = require('../models/Product');
 const path = require('path');
-
+const mongoose = require('mongoose');
 // ==================== CRUD DE BASE ====================
 
 // Créer un produit
@@ -65,21 +65,24 @@ exports.getAllProducts = async (req, res) => {
 };
 
 
-// Recherche client : pagination + query + catégorie (pour la page Search Products)
+// Recherche client : pagination + query + catégorie + prix (pour la page Search Products)
 exports.getClientProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const { query, category, shopId } = req.query;
+    
+    // Ajout de minPrice et maxPrice dans la déstructuration
+    const { query, category, shopId, minPrice, maxPrice } = req.query;
 
     const filter = {};
 
-    // Scope to a specific shop
+    // 1. Filtrage par boutique
     if (shopId) {
       filter.shop = shopId;
     }
 
+    // 2. Recherche textuelle
     if (query) {
       filter.$or = [
         { name: { $regex: query, $options: 'i' } },
@@ -88,10 +91,29 @@ exports.getClientProducts = async (req, res) => {
       ];
     }
 
+    // 3. Filtrage par catégorie
     if (category) {
       filter.category = { $regex: `^${category}$`, $options: 'i' };
     }
 
+// --- LOGIQUE DE PRIX DÉBUGGÉE ---
+    if ((minPrice && minPrice !== "") || (maxPrice && maxPrice !== "")) {
+      filter.price = {};
+      
+      if (minPrice && minPrice !== "") {
+        // On force en String pour Decimal128.fromString
+        filter.price.$gte = mongoose.Types.Decimal128.fromString(minPrice.toString());
+      }
+      
+      if (maxPrice && maxPrice !== "") {
+        filter.price.$lte = mongoose.Types.Decimal128.fromString(maxPrice.toString());
+      }
+    }
+
+    // DEBUG : Regarde ton terminal Node quand tu lances la requête Insomnia
+    console.log("DEBUG FILTER:", JSON.stringify(filter, null, 2));
+
+    // Exécution de la requête avec les filtres mis à jour
     const total = await Product.countDocuments(filter);
     const products = await Product.find(filter)
       .populate('shop', 'name category')
@@ -285,7 +307,7 @@ exports.getPromotionalProducts = async (req, res) => {
 exports.getClientPromotions = async (req, res) => {
   try {
     const now = new Date();
-    const { query, category } = req.query;
+    const { query, category, minPrice, maxPrice } = req.query;
 
     // Base promo filter
     const filter = {
@@ -310,6 +332,19 @@ exports.getClientPromotions = async (req, res) => {
 
     if (category) {
       filter.category = { $regex: `^${category}$`, $options: 'i' };
+    }
+
+// --- FILTRAGE SUR LE PRIX PROMO (DECIMAL128) ---
+    if ((minPrice && minPrice !== "") || (maxPrice && maxPrice !== "")) {
+      // ATTENTION : On cible 'promotion.promo_price' au lieu de 'price'
+      filter['promotion.promo_price'] = {}; 
+      
+      if (minPrice && minPrice !== "") {
+        filter['promotion.promo_price'].$gte = mongoose.Types.Decimal128.fromString(minPrice.toString());
+      }
+      if (maxPrice && maxPrice !== "") {
+        filter['promotion.promo_price'].$lte = mongoose.Types.Decimal128.fromString(maxPrice.toString());
+      }
     }
 
     const products = await Product.find(filter)
