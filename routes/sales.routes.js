@@ -9,7 +9,7 @@ const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
  * @swagger
  * /api/sales:
  *   post:
- *     summary: Record a new sale (ADMINSHOP and ADMIN only)
+ *     summary: Record a new sale (SHOP_ADMIN and ADMIN only)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
@@ -51,13 +51,13 @@ const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
  *       403:
  *         description: Access denied
  */
-router.post('/', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.createSale);
+router.post('/', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), salesCtrl.createSale);
 
 /**
  * @swagger
  * /api/sales:
  *   get:
- *     summary: Get all sales (ADMINSHOP and ADMIN only)
+ *     summary: Get all sales (SHOP_ADMIN and ADMIN only)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
@@ -67,13 +67,13 @@ router.post('/', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.creat
  *       403:
  *         description: Access denied
  */
-router.get('/', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.getAllSales);
+router.get('/', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), salesCtrl.getAllSales);
 
 /**
  * @swagger
  * /api/sales/{id}:
  *   get:
- *     summary: Get sale by ID (ADMINSHOP and ADMIN only)
+ *     summary: Get sale by ID (SHOP_ADMIN and ADMIN only)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
@@ -92,13 +92,13 @@ router.get('/', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.getAll
  *       403:
  *         description: Access denied
  */
-router.get('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.getSaleById);
+router.get('/:id', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), salesCtrl.getSaleById);
 
 /**
  * @swagger
  * /api/sales/{id}:
  *   put:
- *     summary: Update sale (ADMINSHOP and ADMIN only)
+ *     summary: Update sale (SHOP_ADMIN and ADMIN only)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
@@ -130,13 +130,13 @@ router.get('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.get
  *       403:
  *         description: Access denied
  */
-router.put('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.updateSale);
+router.put('/:id', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), salesCtrl.updateSale);
 
 /**
  * @swagger
  * /api/sales/{id}:
  *   delete:
- *     summary: Delete sale (ADMINSHOP and ADMIN only)
+ *     summary: Delete sale (SHOP_ADMIN and ADMIN only)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
@@ -155,7 +155,7 @@ router.put('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.upd
  *       403:
  *         description: Access denied
  */
-router.delete('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.deleteSale);
+router.delete('/:id', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), salesCtrl.deleteSale);
 
 // ==================== UTILITY FUNCTIONS ====================
 
@@ -163,7 +163,7 @@ router.delete('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.
  * @swagger
  * /api/sales/shop/{shopId}:
  *   get:
- *     summary: Get sales by shop (ADMINSHOP and ADMIN only)
+ *     summary: Get sales by shop (SHOP_ADMIN and ADMIN only)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
@@ -180,13 +180,13 @@ router.delete('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.
  *       403:
  *         description: Access denied
  */
-router.get('/shop/:shopId', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.getSalesByShop);
+router.get('/shop/:shopId', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), salesCtrl.getSalesByShop);
 
 /**
  * @swagger
  * /api/sales/filter/date-range:
  *   get:
- *     summary: Get sales by date range (ADMINSHOP and ADMIN only)
+ *     summary: Get sales by date range (SHOP_ADMIN and ADMIN only)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
@@ -215,13 +215,13 @@ router.get('/shop/:shopId', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), sale
  *       403:
  *         description: Access denied
  */
-router.get('/filter/date-range', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.getSalesByDateRange);
+router.get('/filter/date-range', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), salesCtrl.getSalesByDateRange);
 
 /**
  * @swagger
  * /api/sales/filter/today:
  *   get:
- *     summary: Get today's sales (ADMINSHOP and ADMIN only)
+ *     summary: Get today's sales (SHOP_ADMIN and ADMIN only)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
@@ -231,7 +231,7 @@ router.get('/filter/date-range', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']),
  *       403:
  *         description: Access denied
  */
-router.get('/filter/today', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.getTodaySales);
+router.get('/filter/today', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), salesCtrl.getTodaySales);
 
 /**
  * @swagger
@@ -253,7 +253,7 @@ router.get('/stats/overview', verifyToken, checkRole(['ADMIN']), salesCtrl.getSa
  * @swagger
  * /api/sales/stats/shop/{shopId}:
  *   get:
- *     summary: Get sales statistics by shop (ADMINSHOP and ADMIN only)
+ *     summary: Get sales statistics by shop (SHOP_ADMIN and ADMIN only)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
@@ -270,7 +270,7 @@ router.get('/stats/overview', verifyToken, checkRole(['ADMIN']), salesCtrl.getSa
  *       403:
  *         description: Access denied
  */
-router.get('/stats/shop/:shopId', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), salesCtrl.getSalesStatsByShop);
+router.get('/stats/shop/:shopId', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), salesCtrl.getSalesStatsByShop);
 
 /**
  * @swagger

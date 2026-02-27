@@ -29,11 +29,11 @@ const authController = require('../controllers/auth.controller');
  *                 example: "SecurePassword123!"
  *               role:
  *                 type: string
- *                 enum: [ADMIN, BUYERS, ADMINSHOP]
+ *                 enum: [ADMIN, BUYERS, SHOP_ADMIN]
  *                 example: "BUYERS"
  *               shop:
  *                 type: string
- *                 description: Shop ID (required for ADMINSHOP role)
+ *                 description: Shop ID (required for SHOP_ADMIN role)
  *                 example: "65f1a2b3c4d5e6f7g8h9i0j1"
  *     responses:
  *       201:

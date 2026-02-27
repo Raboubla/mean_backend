@@ -10,7 +10,7 @@ const upload = createUpload('communications');
  * @swagger
  * /api/communications:
  *   post:
- *     summary: Create a new communication (ADMIN and ADMINSHOP only)
+ *     summary: Create a new communication (ADMIN and SHOP_ADMIN only)
  *     tags: [Communications]
  *     security:
  *       - bearerAuth: []
@@ -64,7 +64,7 @@ const upload = createUpload('communications');
  *       403:
  *         description: Access denied
  */
-router.post('/', upload.single('image'), verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), communicationCtrl.createCommunication);
+router.post('/', upload.single('image'), verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), communicationCtrl.createCommunication);
 
 /**
  * @swagger
@@ -107,7 +107,7 @@ router.get('/:id', verifyToken, communicationCtrl.getCommunicationById);
  * @swagger
  * /api/communications/{id}:
  *   put:
- *     summary: Update communication (ADMIN and ADMINSHOP only)
+ *     summary: Update communication (ADMIN and SHOP_ADMIN only)
  *     tags: [Communications]
  *     security:
  *       - bearerAuth: []
@@ -151,13 +151,13 @@ router.get('/:id', verifyToken, communicationCtrl.getCommunicationById);
  *       403:
  *         description: Access denied
  */
-router.put('/:id', upload.single('image'), verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), communicationCtrl.updateCommunication);
+router.put('/:id', upload.single('image'), verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), communicationCtrl.updateCommunication);
 
 /**
  * @swagger
  * /api/communications/{id}:
  *   delete:
- *     summary: Delete communication (ADMIN and ADMINSHOP only)
+ *     summary: Delete communication (ADMIN and SHOP_ADMIN only)
  *     tags: [Communications]
  *     security:
  *       - bearerAuth: []
@@ -176,7 +176,7 @@ router.put('/:id', upload.single('image'), verifyToken, checkRole(['ADMIN', 'ADM
  *       403:
  *         description: Access denied
  */
-router.delete('/:id', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), communicationCtrl.deleteCommunication);
+router.delete('/:id', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), communicationCtrl.deleteCommunication);
 
 // ==================== UTILITY FUNCTIONS ====================
 

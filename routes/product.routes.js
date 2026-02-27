@@ -69,7 +69,7 @@ const upload = createUpload('products');
  *       403:
  *         description: Access denied (insufficient role)
  */
-router.post('/', upload.single('image'), verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), productCtrl.createProduct);
+router.post('/', upload.single('image'), verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), productCtrl.createProduct);
 
 /**
  * @swagger
@@ -168,7 +168,7 @@ router.get('/:id', verifyToken, productCtrl.getProductById);
  *       403:
  *         description: Access denied
  */
-router.put('/:id', upload.single('image'), verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), productCtrl.updateProduct);
+router.put('/:id', upload.single('image'), verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), productCtrl.updateProduct);
 
 /**
  * @swagger
@@ -193,7 +193,7 @@ router.put('/:id', upload.single('image'), verifyToken, checkRole(['ADMINSHOP', 
  *       403:
  *         description: Access denied
  */
-router.delete('/:id', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), productCtrl.deleteProduct);
+router.delete('/:id', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), productCtrl.deleteProduct);
 
 // ==================== UTILITY FUNCTIONS ====================
 
@@ -301,7 +301,7 @@ router.get('/filter/promotions', verifyToken, productCtrl.getPromotionalProducts
  *       403:
  *         description: Access denied
  */
-router.patch('/:id/toggle-status', verifyToken, checkRole(['ADMINSHOP', 'ADMIN']), productCtrl.toggleProductStatus);
+router.patch('/:id/toggle-status', verifyToken, checkRole(['SHOP_ADMIN', 'ADMIN']), productCtrl.toggleProductStatus);
 
 /**
  * @swagger

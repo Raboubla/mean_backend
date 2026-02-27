@@ -48,7 +48,7 @@ router.post('/', reviewCtrl.createReview);
  * @swagger
  * /api/reviews:
  *   get:
- *     summary: Get all reviews (ADMIN and ADMINSHOP only)
+ *     summary: Get all reviews (ADMIN and SHOP_ADMIN only)
  *     tags: [Reviews]
  *     security:
  *       - bearerAuth: []
@@ -58,13 +58,13 @@ router.post('/', reviewCtrl.createReview);
  *       403:
  *         description: Access denied
  */
-router.get('/', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.getAllReviews);
+router.get('/', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), reviewCtrl.getAllReviews);
 
 /**
  * @swagger
  * /api/reviews/{id}:
  *   get:
- *     summary: Get review by ID (ADMIN and ADMINSHOP only)
+ *     summary: Get review by ID (ADMIN and SHOP_ADMIN only)
  *     tags: [Reviews]
  *     security:
  *       - bearerAuth: []
@@ -83,13 +83,13 @@ router.get('/', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.getAl
  *       403:
  *         description: Access denied
  */
-router.get('/:id', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.getReviewById);
+router.get('/:id', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), reviewCtrl.getReviewById);
 
 /**
  * @swagger
  * /api/reviews/{id}:
  *   put:
- *     summary: Update review (ADMIN and ADMINSHOP only)
+ *     summary: Update review (ADMIN and SHOP_ADMIN only)
  *     tags: [Reviews]
  *     security:
  *       - bearerAuth: []
@@ -126,13 +126,13 @@ router.get('/:id', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.ge
  *       403:
  *         description: Access denied
  */
-router.put('/:id', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.updateReview);
+router.put('/:id', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), reviewCtrl.updateReview);
 
 /**
  * @swagger
  * /api/reviews/{id}:
  *   delete:
- *     summary: Delete review (ADMIN and ADMINSHOP only)
+ *     summary: Delete review (ADMIN and SHOP_ADMIN only)
  *     tags: [Reviews]
  *     security:
  *       - bearerAuth: []
@@ -151,7 +151,7 @@ router.put('/:id', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.up
  *       403:
  *         description: Access denied
  */
-router.delete('/:id', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.deleteReview);
+router.delete('/:id', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), reviewCtrl.deleteReview);
 
 // ==================== UTILITY FUNCTIONS ====================
 
@@ -159,7 +159,7 @@ router.delete('/:id', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl
  * @swagger
  * /api/reviews/shop/{shopId}:
  *   get:
- *     summary: Get all reviews for a shop (ADMIN and ADMINSHOP only)
+ *     summary: Get all reviews for a shop (ADMIN and SHOP_ADMIN only)
  *     tags: [Reviews]
  *     security:
  *       - bearerAuth: []
@@ -176,7 +176,7 @@ router.delete('/:id', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl
  *       403:
  *         description: Access denied
  */
-router.get('/shop/:shopId', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.getReviewsByShop);
+router.get('/shop/:shopId', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), reviewCtrl.getReviewsByShop);
 
 /**
  * @swagger
@@ -201,7 +201,7 @@ router.get('/shop/:shopId/approved', reviewCtrl.getApprovedReviewsByShop);
  * @swagger
  * /api/reviews/status/{status}:
  *   get:
- *     summary: Get reviews by status (ADMIN and ADMINSHOP only)
+ *     summary: Get reviews by status (ADMIN and SHOP_ADMIN only)
  *     tags: [Reviews]
  *     security:
  *       - bearerAuth: []
@@ -221,13 +221,13 @@ router.get('/shop/:shopId/approved', reviewCtrl.getApprovedReviewsByShop);
  *       403:
  *         description: Access denied
  */
-router.get('/status/:status', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.getReviewsByStatus);
+router.get('/status/:status', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), reviewCtrl.getReviewsByStatus);
 
 /**
  * @swagger
  * /api/reviews/rating/{rating}:
  *   get:
- *     summary: Get reviews by rating (ADMIN and ADMINSHOP only)
+ *     summary: Get reviews by rating (ADMIN and SHOP_ADMIN only)
  *     tags: [Reviews]
  *     security:
  *       - bearerAuth: []
@@ -248,13 +248,13 @@ router.get('/status/:status', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), re
  *       403:
  *         description: Access denied
  */
-router.get('/rating/:rating', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.getReviewsByRating);
+router.get('/rating/:rating', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), reviewCtrl.getReviewsByRating);
 
 /**
  * @swagger
  * /api/reviews/{id}/status:
  *   patch:
- *     summary: Update review status (moderation) (ADMIN and ADMINSHOP only)
+ *     summary: Update review status (moderation) (ADMIN and SHOP_ADMIN only)
  *     tags: [Reviews]
  *     security:
  *       - bearerAuth: []
@@ -288,7 +288,7 @@ router.get('/rating/:rating', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), re
  *       403:
  *         description: Access denied
  */
-router.patch('/:id/status', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.updateReviewStatus);
+router.patch('/:id/status', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), reviewCtrl.updateReviewStatus);
 
 /**
  * @swagger
@@ -310,7 +310,7 @@ router.get('/stats/overview', verifyToken, checkRole(['ADMIN']), reviewCtrl.getR
  * @swagger
  * /api/reviews/stats/shop/{shopId}:
  *   get:
- *     summary: Get review statistics by shop (ADMIN and ADMINSHOP only)
+ *     summary: Get review statistics by shop (ADMIN and SHOP_ADMIN only)
  *     tags: [Reviews]
  *     security:
  *       - bearerAuth: []
@@ -327,7 +327,7 @@ router.get('/stats/overview', verifyToken, checkRole(['ADMIN']), reviewCtrl.getR
  *       403:
  *         description: Access denied
  */
-router.get('/stats/shop/:shopId', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), reviewCtrl.getReviewStatsByShop);
+router.get('/stats/shop/:shopId', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), reviewCtrl.getReviewStatsByShop);
 
 /**
  * @swagger
