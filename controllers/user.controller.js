@@ -4,18 +4,28 @@ const authService = require('../services/auth.service');
 // ==================== BASIC CRUD ====================
 
 // Create a new user
+// Create a new user
 exports.createUser = async (req, res) => {
   try {
-    const { shopId, ...rest } = req.body;
+    const { shopId, password, ...rest } = req.body;
 
-    // Map shopId → shop (the schema field name)
-    const userData = { ...rest };
+    // 1️⃣ Hacher le mot de passe
+    const hashedPassword = await authService.hashPassword(password);
+
+    // 2️⃣ Préparer les données utilisateur
+    const userData = {
+      ...rest,
+      password: hashedPassword
+    };
+
+    // 3️⃣ Mapper shopId → shop
     if (shopId) userData.shop = shopId;
 
+    // 4️⃣ Créer l'utilisateur
     const newUser = new User(userData);
     const savedUser = await newUser.save();
 
-    // Remove password from response
+    // 5️⃣ Supprimer le password dans la réponse
     const userResponse = savedUser.toObject();
     delete userResponse.password;
 
@@ -23,10 +33,12 @@ exports.createUser = async (req, res) => {
       message: 'User created successfully',
       user: userResponse
     });
+
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 
 // Get all users  (supports ?query=&status=&role= filters)

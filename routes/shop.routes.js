@@ -183,7 +183,7 @@ router.get('/:id', shopCtrl.getShopById);
  *       403:
  *         description: Access denied
  */
-router.put('/:id', upload.single('banner'), verifyToken, checkRole(['ADMIN']), shopCtrl.updateShop);
+router.put('/:id', upload.single('banner'), verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), shopCtrl.updateShop);
 
 /**
  * @swagger
@@ -405,7 +405,7 @@ router.get('/filter/open-now', shopCtrl.getShopsOpenNow);
  *         description: Access denied (user is not SHOP_ADMIN)
  * 
  */
-router.get('/my', verifyToken, checkRole(['SHOP_ADMIN']), shopCtrl.getMyShop);
+router.get('/my/my', verifyToken, checkRole(['SHOP_ADMIN']), shopCtrl.getMyShop);
 
 /**
  * @swagger

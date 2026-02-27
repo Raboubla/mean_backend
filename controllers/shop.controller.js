@@ -402,7 +402,7 @@ exports.getShopsOpenNow = async (req, res) => {
 exports.getMyShop = async (req, res) => {
   try {
     // req.user should be set by verifyToken middleware
-    const userId = req.user._id;
+    const userId = req.user.id;
 
     // Populate the shop field
     const user = await User.findById(userId).populate('shop');

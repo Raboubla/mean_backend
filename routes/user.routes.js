@@ -32,11 +32,11 @@ const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
  *                 example: "SecurePassword123!"
  *               role:
  *                 type: string
- *                 enum: [ADMIN, BUYERS, ADMINSHOP]
+ *                 enum: [ADMIN, BUYERS, SHOP_ADMIN]
  *                 example: "BUYERS"
  *               shop:
  *                 type: string
- *                 description: Shop ID (required for ADMINSHOP role)
+ *                 description: Shop ID (required for SHOP_ADMIN role)
  *     responses:
  *       201:
  *         description: User created successfully
@@ -113,7 +113,7 @@ router.get('/:id', verifyToken, checkRole(['ADMIN']), userCtrl.getUserById);
  *                 format: email
  *               role:
  *                 type: string
- *                 enum: [ADMIN, BUYERS, ADMINSHOP]
+ *                 enum: [ADMIN, BUYERS, SHOP_ADMIN]
  *               status:
  *                 type: string
  *               shop:
@@ -173,7 +173,7 @@ router.delete('/:id', verifyToken, checkRole(['ADMIN']), userCtrl.deleteUser);
  *         required: true
  *         schema:
  *           type: string
- *           enum: [ADMIN, BUYERS, ADMINSHOP]
+ *           enum: [ADMIN, BUYERS, SHOP_ADMIN]
  *         description: User role
  *     responses:
  *       200:
@@ -189,7 +189,7 @@ router.get('/role/:role', verifyToken, checkRole(['ADMIN']), userCtrl.getUsersBy
  * @swagger
  * /api/users/shop/{shopId}:
  *   get:
- *     summary: Get users by shop (ADMIN and ADMINSHOP)
+ *     summary: Get users by shop (ADMIN and SHOP_ADMIN)
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -206,7 +206,7 @@ router.get('/role/:role', verifyToken, checkRole(['ADMIN']), userCtrl.getUsersBy
  *       403:
  *         description: Access denied
  */
-router.get('/shop/:shopId', verifyToken, checkRole(['ADMIN', 'ADMINSHOP']), userCtrl.getUsersByShop);
+router.get('/shop/:shopId', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), userCtrl.getUsersByShop);
 
 /**
  * @swagger
