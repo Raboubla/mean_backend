@@ -4,6 +4,9 @@ const shopCtrl = require('../controllers/shop.controller');
 const { verifyToken, checkRole } = require('../middlewares/auth.middleware');
 const createUpload = require('../middlewares/image.middleware');
 const upload = createUpload('shops');
+const Shop = require('../models/Shop');
+
+router.patch('/status', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), shopCtrl.updateShopStatus);
 
 // ==================== BASIC CRUD ====================
 
@@ -85,7 +88,13 @@ const upload = createUpload('shops');
  *       403:
  *         description: Access denied (ADMIN role required)
  */
-router.post('/', upload.single('banner'), verifyToken, checkRole(['ADMIN']), shopCtrl.createShop);
+router.post(
+  '/',
+  verifyToken,                     // 1️⃣ verify token first
+  checkRole(['ADMIN', 'SHOP_ADMIN']), 
+  upload.single('banner'),         // 2️⃣ handle file upload
+  shopCtrl.createShop              // 3️⃣ controller
+);
 
 /**
  * @swagger
@@ -183,7 +192,7 @@ router.get('/:id', shopCtrl.getShopById);
  *       403:
  *         description: Access denied
  */
-router.put('/:id', upload.single('banner'), verifyToken, checkRole(['ADMIN']), shopCtrl.updateShop);
+router.put('/:id', upload.single('banner'), verifyToken,  checkRole(['ADMIN', 'SHOP_ADMIN']), shopCtrl.updateShop);
 
 /**
  * @swagger
@@ -316,7 +325,7 @@ router.get('/floor/:floor', shopCtrl.getShopsByFloor);
  *       403:
  *         description: Access denied
  */
-router.patch('/:id/status', verifyToken, checkRole(['ADMIN']), shopCtrl.updateShopStatus);
+router.put('/', verifyToken, checkRole(['ADMIN', 'SHOP_ADMIN']), shopCtrl.updateShop);
 
 /**
  * @swagger
@@ -354,7 +363,7 @@ router.get('/search/name', shopCtrl.searchShopsByName);
  *       403:
  *         description: Access denied
  */
-router.get('/stats/overview', verifyToken, checkRole(['ADMIN']), shopCtrl.getShopStatistics);
+router.get('/stats/overview', verifyToken,  checkRole(['ADMIN', 'SHOP_ADMIN']), shopCtrl.getShopStatistics);
 
 /**
  * @swagger
