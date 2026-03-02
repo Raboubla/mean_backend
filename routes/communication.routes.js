@@ -78,7 +78,7 @@ router.post('/', upload.single('image'), verifyToken, checkRole(['ADMIN', 'SHOP_
  *       200:
  *         description: List of all communications
  */
-router.get('/', verifyToken, communicationCtrl.getAllCommunications);
+router.get('/', communicationCtrl.getAllCommunications);
 
 /**
  * @swagger
@@ -275,7 +275,7 @@ router.get('/shop/:shopId', verifyToken, communicationCtrl.getCommunicationsBySh
  *       200:
  *         description: List of upcoming communications
  */
-router.get('/filter/upcoming', verifyToken, communicationCtrl.getUpcomingCommunications);
+router.get('/filter/upcoming', communicationCtrl.getUpcomingCommunications);
 
 /**
  * @swagger
